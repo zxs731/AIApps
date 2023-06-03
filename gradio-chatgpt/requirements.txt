@@ -1,0 +1,8 @@
+openai
+langchain
+chardet
+cchardet
+Flask
+chromadb
+tiktoken
+python-dotenv
