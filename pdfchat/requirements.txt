@@ -4,3 +4,4 @@ chromadb
 langchain
 unstructured
 unstructured[local-inference]
+python-dotenv
