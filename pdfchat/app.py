@@ -24,20 +24,21 @@ API_KEY = os.environ.get('AZURE_OPENAI_API_KEY')
 Version = os.environ.get('OPENAI_API_VERSION')
 os.environ['OPENAI_API_BASE']=BASE_URL
 os.environ['OPENAI_API_KEY']=API_KEY
-DEPLOYMENT_NAME = "chatgpt0301"
+CHAT_DEPLOYMENT_NAME = os.environ.get('AZURE_OPENAI_API_CHAT_DEPLOYMENT_NAME')
+EMBEDDING_DEPLOYMENT_NAME = os.environ.get('AZURE_OPENAI_API_EMBEDDING_DEPLOYMENT_NAME')
 
 llm = AzureChatOpenAI(
             temperature=0,
             model_name="gpt-35-turbo",
             openai_api_base=BASE_URL,
             openai_api_version="2023-03-15-preview",
-            deployment_name="chatgpt0301",
+            deployment_name=CHAT_DEPLOYMENT_NAME,
             openai_api_key=API_KEY,
             openai_api_type = "azure",
             
         )
 embeddings = OpenAIEmbeddings(
-            deployment="embedding"
+            deployment=EMBEDDING_DEPLOYMENT_NAME
         )
 db = Chroma(persist_directory='pdfvector', embedding_function=embeddings)
 retriever = db.as_retriever()
@@ -73,12 +74,12 @@ def pdf_changes(pdf_doc, open_ai_key):
             model_name="gpt-35-turbo",
             openai_api_base=BASE_URL,
             openai_api_version="2023-03-15-preview",
-            deployment_name="chatgpt0301",
+            deployment_name=CHAT_DEPLOYMENT_NAME,
             openai_api_key=API_KEY,
             openai_api_type = "azure",
             
         )
-        '''
+        
         from langchain.document_loaders import PyPDFLoader
         loader = PyPDFLoader(pdf_doc.name)
         #loader = OnlinePDFLoader(pdf_doc.name)
@@ -86,15 +87,14 @@ def pdf_changes(pdf_doc, open_ai_key):
         text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
         texts = text_splitter.split_documents(documents)
         embeddings = OpenAIEmbeddings(
-            deployment="embedding"
+            deployment=EMBEDDING_DEPLOYMENT_NAME
         )
         
         db = Chroma(persist_directory='pdfvector', embedding_function=embeddings)
         for i in range(0,len(texts)):
             db.add_texts([texts[i].page_content])
         db.persist()
-        '''
-        db = Chroma(persist_directory='pdfvector', embedding_function=embeddings)
+        
         retriever = db.as_retriever()
         qa = ConversationalRetrievalChain.from_llm(
             llm=llm, 
